@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Geologica:wght@100;200;300;400;500;600;700;800;900&family=Tulpen+One&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+        <title>Rede Casa Líquida</title>
+        <style>
+            body {
+                overflow: hidden;
+                margin: 0px;
+                font-family: 'Geologica', sans-serif;
+                font-family: 'Tulpen One', cursive;
+            }
+            .marker {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 20px;
+                height: 20px;
+                border: solid black 2px;
+                transform: translate(-50%, -50%);
+                display: none;
+                font-size: 30px;
+                /* transition: top 0.1s, left 0.1s; */
+            }
+            .marker .name {
+                position: absolute;
+                bottom: 0px;
+                left: 50%;
+                text-wrap: nowrap;
+                transform: translate(-50%, 120%);
+                color: #9cb900;
+                text-shadow: 1px 2px black;
+            }
+            .marker .glass {
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                width: 100%;
+                height: 100%;
+                border: solid #9cb900 4px;
+                background-color: rgba(0, 255, 0, 0.1);
+            }
+            .marker .image {
+                cursor: pointer;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100%;
+                background-position: center;
+                background-size: cover;
+                background-color: rgba(255, 255, 255, 1);
+                opacity: 0;
+                transition: opacity 1s;
+            }
+            #viewer {
+                cursor: pointer;
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                width: 100vw;
+                height: 100vh;
+                background-position: center;
+                background-size: cover;
+                background-color: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
+                opacity: 0;
+                z-index: -10000;
+                transition: opacity 1s;
+            }
+            #viewer.open {
+                opacity: 1;
+                z-index: 10000;
+            }
+            #viewer .wrapper {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                min-width: 80vw;
+                min-height: 80vh;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+            #viewer .media {
+                display: inline-block;
+                box-shadow: black 10px 10px 10px;
+                width: 80vw;
+                max-width: 70vh;
+                height: 60vh;
+                background-color: black;
+                border-radius: 30px;
+                overflow: hidden;
+            }
+            #viewer .header-wrapper {
+                display: flex;
+                width: 100%;
+                justify-content: center;
+            }
+            #viewer .header {
+                display: flex;
+                width: 80vw;
+                max-width: 70vh;
+                justify-content: center;
+                flex-direction: row;
+            }
+            #viewer .artist-name {
+                color: #9cb900;
+                text-shadow: 1px 2px black;
+                font-size: 30px;
+                text-align: center;
+                margin-bottom: 20px;
+                flex-grow: 1;
+            }
+            #viewer .next,
+            #viewer .prev {
+                cursor: pointer;
+                color: #9cb900;
+                text-shadow: 1px 2px black;
+                font-size: 50px;
+                text-align: center;
+                margin-bottom: 20px;
+                opacity: 1;
+                transform: scale(1);
+                transition: opacity 0.3s, transform 0.3s;
+            }
+            #viewer .next:hover,
+            #viewer .prev:hover {
+                opacity: 0.5;
+                transform: scale(1.5);
+            }
+            #viewer .foto {
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+            }
+            #viewer .details {
+                display: inline-block;
+                width: 80vw;
+                max-width: 70vh;
+                color: white;
+                text-shadow: 1px 2px black;
+                font-size: 20px;
+                text-align: left;
+                margin-top: 20px;
+                flex-grow: 1;
+            }
+
+            #viewer .close {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 10px;
+                background-color: #9cb900;
+                color: black;
+                padding: 5px;
+                font-size: 30px;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="module" src="bundle.js"></script>
+        <div class="marker">
+            <div class="glass"></div>
+            <div class="image"></div>
+            <div class="name">Lucas Portela</div>
+        </div>
+        <div id="viewer">
+            <div v-if="artist" class="wrapper">
+                <div class="header-wrapper">
+                    <div class="header">
+                        <div
+                            class="prev"
+                            :style="{opacity: mediaIndex>0?undefined:0}"
+                            @click="mediaIndex=Math.max(mediaIndex-1,0)"
+                        >
+                            &laquo;
+                        </div>
+                        <div class="artist-name">{{artist.name}}</div>
+                        <div
+                            class="next"
+                            :style="{opacity: mediaIndex<mediaList.length-1?undefined:0}"
+                            @click="mediaIndex=Math.min(mediaIndex+1,mediaList.length-1)"
+                        >
+                            &raquo;
+                        </div>
+                    </div>
+                </div>
+                <div class="media">
+                    <template v-if="media.type=='video'">
+                        <iframe
+                            v-if="media.url.match(/(youtube|youtu.be)/)"
+                            :src="'https://www.youtube.com/embed/'+media.url.match(/\/(?:watch\?v=)*([^\/]+)$/)[1]"
+                            width="100%"
+                            height="100%"
+                            frameborder="0"
+                        ></iframe>
+                        <video
+                            v-else
+                            controls="true"
+                            loop="true"
+                            autoplay="true"
+                            style="width: 100%; height: 100%"
+                        >
+                            <source :src="media.url" />
+                        </video>
+                    </template>
+                    <div
+                        v-else
+                        class="foto"
+                        :style="{'background-image': 'url('+media.url+')'}"
+                    ></div>
+                </div>
+                <div class="details">{{media.label}}</div>
+            </div>
+            <div class="close" @click="close()">Voltar</div>
+        </div>
+    </body>
+</html>
