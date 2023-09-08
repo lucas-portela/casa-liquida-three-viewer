@@ -95,7 +95,7 @@
                 box-shadow: black 10px 10px 10px;
                 width: 80vw;
                 max-width: 70vh;
-                height: 60vh;
+                height: 40vh;
                 background-color: black;
                 border-radius: 30px;
                 overflow: hidden;
@@ -158,10 +158,8 @@
             }
 
             #viewer .close {
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
+                display: inline-block;
+                margin-top: 40px;
                 border-radius: 10px;
                 background-color: #9cb900;
                 color: black;
@@ -201,7 +199,7 @@
                     </div>
                 </div>
                 <div class="media">
-                    <template v-if="media.type=='video'">
+                    <template v-if="media&&media.type=='video'">
                         <iframe
                             v-if="media.url.match(/(youtube|youtu.be)/)"
                             :src="'https://www.youtube.com/embed/'+media.url.match(/\/(?:watch\?v=)*([^\/]+)$/)[1]"
@@ -222,13 +220,13 @@
                     <div
                         v-else
                         class="foto"
-                        :style="{'background-image': 'url('+media.url+')'}"
+                        :style="{'background-image': 'url('+((media||{}).url||'https://placehold.co/600x400?text=Sem%20Fotos')+')'}"
                     ></div>
                 </div>
                 <br />
-                <div class="details">{{media.label}}</div>
+                <div v-if="media" class="details">{{media.label}}</div>
+                <div class="close" @click="close()">Voltar</div>
             </div>
-            <div class="close" @click="close()">Voltar</div>
         </div>
     </body>
 </html>
