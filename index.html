@@ -19,16 +19,26 @@
                 font-family: 'Geologica', sans-serif;
                 font-family: 'Tulpen One', cursive;
             }
+            #gui {
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                bottom: 0px;
+                overflow: hidden;
+            }
             .marker {
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 width: 20px;
                 height: 20px;
-                border: solid black 2px;
+                /* border: solid black 2px; */
                 transform: translate(-50%, -50%);
                 display: none;
                 font-size: 30px;
+                box-sizing: border-box;
+                cursor: pointer;
                 /* transition: top 0.1s, left 0.1s; */
             }
             .marker .name {
@@ -42,16 +52,18 @@
             }
             .marker .glass {
                 position: absolute;
-                top: -2px;
-                left: -2px;
+                z-index: 2;
+                top: 0px;
+                left: 0px;
                 width: 100%;
                 height: 100%;
                 border: solid #9cb900 4px;
+                box-sizing: border-box;
                 background-color: rgba(0, 255, 0, 0.1);
             }
             .marker .image {
-                cursor: pointer;
                 position: absolute;
+                z-index: 1;
                 top: 0px;
                 left: 0px;
                 width: 100%;
@@ -167,65 +179,162 @@
                 font-size: 30px;
                 cursor: pointer;
             }
+
+            #artist-list {
+                position: fixed;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+                overflow-y: scroll;
+                min-width: 200px;
+                opacity: 0.1;
+                transform: translateX(100%);
+                transition: opacity 1s, transform 1s;
+            }
+            #artist-list.open {
+                opacity: 1;
+                transform: translateX(0%);
+            }
+            #artist-list div {
+                color: #9cb900;
+                border: solid #9cb900 2px;
+                border-top: none;
+                padding: 10px;
+                cursor: pointer;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+            #artist-list div:nth-child(1) {
+                border-top: solid #9cb900 2px;
+            }
+
+            #navigation {
+                position: fixed;
+                bottom: 5vh;
+                left: 0px;
+                right: 0px;
+                text-align: center;
+            }
+            #navigation .btn {
+                display: inline-block;
+                margin-top: 40px;
+                border-radius: 10px;
+                background-color: #9cb900;
+                color: black;
+                padding: 5px;
+                font-size: 30px;
+                cursor: pointer;
+                margin: 0px 2px;
+            }
+
+            body {
+                --sb-track-color: #32393c;
+                --sb-thumb-color: #9cb900;
+                --sb-size: 9px;
+
+                scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+            }
+
+            ::-webkit-scrollbar {
+                width: var(--sb-size);
+            }
+
+            ::-webkit-scrollbar-track {
+                background: var(--sb-track-color);
+                border-radius: 10px;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--sb-thumb-color);
+                border-radius: 10px;
+                border: 2px solid #232e33;
+            }
         </style>
     </head>
 
     <body>
         <script type="module" src="bundle.js"></script>
-        <div class="marker">
-            <div class="glass"></div>
-            <div class="image"></div>
-            <div class="name">Lucas Portela</div>
-        </div>
-        <div id="viewer">
-            <div v-if="artist" class="wrapper">
-                <div class="header-wrapper">
-                    <div class="header">
-                        <div
-                            class="prev"
-                            :style="{opacity: mediaIndex>0?undefined:0}"
-                            @click="mediaIndex=Math.max(mediaIndex-1,0)"
-                        >
-                            &laquo;
-                        </div>
-                        <div class="artist-name">{{artist.name}}</div>
-                        <div
-                            class="next"
-                            :style="{opacity: mediaIndex<mediaList.length-1?undefined:0}"
-                            @click="mediaIndex=Math.min(mediaIndex+1,mediaList.length-1)"
-                        >
-                            &raquo;
+        <div id="gui" style="display: none">
+            <div class="marker">
+                <div class="image"></div>
+                <div class="glass"></div>
+                <div class="name">Lucas Portela</div>
+            </div>
+            <div id="viewer">
+                <div v-if="artist" class="wrapper">
+                    <div class="header-wrapper">
+                        <div class="header">
+                            <div
+                                class="prev"
+                                :style="{opacity: mediaIndex>0?undefined:0}"
+                                @click="mediaIndex=Math.max(mediaIndex-1,0)"
+                            >
+                                &laquo;
+                            </div>
+                            <div class="artist-name">{{artist.name}}</div>
+                            <div
+                                class="next"
+                                :style="{opacity: mediaIndex<mediaList.length-1?undefined:0}"
+                                @click="mediaIndex=Math.min(mediaIndex+1,mediaList.length-1)"
+                            >
+                                &raquo;
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="media">
-                    <template v-if="media&&media.type=='video'">
-                        <iframe
-                            v-if="media.url.match(/(youtube|youtu.be)/)"
-                            :src="'https://www.youtube.com/embed/'+media.url.match(/\/(?:watch\?v=)*([^\/]+)$/)[1]"
-                            width="100%"
-                            height="100%"
-                            frameborder="0"
-                        ></iframe>
-                        <video
+                    <div class="media">
+                        <template v-if="media&&media.type=='video'">
+                            <iframe
+                                v-if="media.url.match(/(youtube|youtu.be)/)"
+                                :src="'https://www.youtube.com/embed/'+media.url.match(/\/(?:watch\?v=)*([^\/]+)$/)[1]"
+                                width="100%"
+                                height="100%"
+                                frameborder="0"
+                            ></iframe>
+                            <video
+                                v-else
+                                controls="true"
+                                loop="true"
+                                autoplay="true"
+                                style="width: 100%; height: 100%"
+                            >
+                                <source :src="media.url" />
+                            </video>
+                        </template>
+                        <div
                             v-else
-                            controls="true"
-                            loop="true"
-                            autoplay="true"
-                            style="width: 100%; height: 100%"
-                        >
-                            <source :src="media.url" />
-                        </video>
-                    </template>
-                    <div
-                        v-else
-                        class="foto"
-                        :style="{'background-image': 'url('+((media||{}).url||'https://placehold.co/600x400?text=Sem%20Fotos')+')'}"
-                    ></div>
+                            class="foto"
+                            :style="{'background-image': 'url('+((media||{}).url||'https://placehold.co/600x400?text=Sem%20Fotos')+')'}"
+                        ></div>
+                    </div>
+                    <br />
+                    <div v-if="media" class="details">{{media.label}}</div>
+                    <div class="close" @click="close()">Voltar</div>
                 </div>
-                <br />
-                <div v-if="media" class="details">{{media.label}}</div>
-                <div class="close" @click="close()">Voltar</div>
+            </div>
+            <div id="navigation" v-if="!artistListOpen">
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <div class="btn" @click="artistListOpen=true">Ver Artistas</div>
+                            <div class="btn" @click="navigateToArtist(null)" v-if="artistIsFocused">
+                                Reiniciar
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </div>
+            <div id="artist-list" :class="{'open': artistListOpen}">
+                <div v-for="artist in artists" @click="navigateToArtist(artist)">
+                    {{artist.name}}
+                </div>
             </div>
         </div>
     </body>
