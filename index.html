@@ -17,6 +17,10 @@
                 font-family: MainFont;
                 src: url(./mabry-pro.otf);
             }
+            @font-face {
+                font-family: LabelFont;
+                src: url(./ready-active.otf);
+            }
             body {
                 overflow: hidden;
                 margin: 0px;
@@ -39,7 +43,6 @@
                 /* border: solid black 2px; */
                 transform: translate(-50%, -50%);
                 display: none;
-                font-size: 30px;
                 box-sizing: border-box;
                 cursor: pointer;
                 /* transition: top 0.1s, left 0.1s; */
@@ -48,21 +51,12 @@
                 position: absolute;
                 bottom: 0px;
                 left: 50%;
-                text-wrap: nowrap;
-                transform: translate(-50%, 120%);
-                color: #9cb900;
-                text-shadow: 1px 2px black;
-            }
-            .marker .glass {
-                position: absolute;
-                z-index: 2;
-                top: 0px;
-                left: 0px;
-                width: 100%;
-                height: 100%;
-                border: solid #9cb900 4px;
-                box-sizing: border-box;
-                background-color: rgba(0, 255, 0, 0.1);
+                font-family: LabelFont;
+                transform: translate(-50%, 100%);
+                color: #fdabdb;
+                text-shadow: 1px 2px #b34e7a;
+                font-size: 40px;
+                text-align: center;
             }
             .marker .image {
                 position: absolute;
@@ -192,7 +186,6 @@
                 min-width: 200px;
                 opacity: 0.1;
                 transform: translateX(100%);
-                border: solid #9cb900 2px;
                 transition: opacity 1s, transform 1s;
             }
             #artist-list.open {
@@ -220,18 +213,28 @@
             #navigation .btn {
                 display: inline-block;
                 margin-top: 40px;
-                border-radius: 10px;
                 color: #9cb900;
                 text-shadow: 1px 2px black;
                 padding: 5px;
-                font-size: 30px;
+                font-size: 20px;
                 cursor: pointer;
                 margin: 0px 2px;
+            }
+            #navigation .dot {
+                display: inline-block;
+                margin-top: 40px;
+                background-color: #9cb900;
+                border-radius: 100%;
+                text-shadow: 1px 2px black;
+                width: 5px;
+                height: 5px;
+                margin: 5px;
+                margin-bottom: 3px;
             }
 
             body {
                 --sb-track-color: #32393c;
-                --sb-thumb-color: #9cb900;
+                --sb-thumb-color: #686868;
                 --sb-size: 9px;
 
                 scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
@@ -258,7 +261,7 @@
         <script type="module" src="bundle.js"></script>
         <div id="gui" style="display: none">
             <div class="marker">
-                <div class="image"></div>
+                <!-- <div class="image"></div> -->
                 <div class="glass"></div>
                 <div class="name">Lucas Portela</div>
             </div>
@@ -324,9 +327,13 @@
                         <td></td>
                         <td>
                             <div class="btn" @click="artistListOpen=true">ver artistas</div>
-                            <div class="btn" @click="navigateToArtist(null)" v-if="artistIsFocused">
-                                reiniciar
-                            </div>
+                            <template v-if="artistIsFocused">
+                                <div class="dot"></div>
+                                <div class="btn" @click="navigateToArtist(null)">
+                                    voltar
+                                    <!-- <span style="transform: translateY(6px)">↩</span> -->
+                                </div>
+                            </template>
                         </td>
                     </tr>
                 </tbody>
